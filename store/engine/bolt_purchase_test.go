@@ -11,11 +11,11 @@ import (
 
 var testDb = "test-purchase.db"
 
-func TestBoltDB_CreateAndFind(t *testing.T) {
+func TestBoltDB_CreateAndList(t *testing.T) {
 	defer os.Remove(testDb)
 	var b = prep(t)
 
-	res, err := b.Find(store.User{ID: "user1"})
+	res, err := b.List(store.User{ID: "user1"})
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(res))
 	assert.Equal(t, 2121, res[0].Amount)
@@ -26,7 +26,7 @@ func TestBoltDB_CreateAndFind(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "key id-1 already in store", err.Error())
 
-	_, err = b.Find(store.User{ID: "user-not-found"})
+	_, err = b.List(store.User{ID: "user-not-found"})
 	assert.EqualError(t, err, `no bucket user-not-found in store`)
 
 	assert.NoError(t, b.Close())

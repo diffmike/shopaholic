@@ -34,7 +34,6 @@ func NewBoltDB(options bolt.Options, instance BoltInstance) (*BoltDB, error) {
 		return nil, errors.Wrapf(err, "failed to make boltdb for %s", instance.FileName)
 	}
 
-	// make top-level buckets
 	topBuckets := []string{purchasesBucketName, usersBucketName}
 	err = db.Update(func(tx *bolt.Tx) error {
 		for _, bktName := range topBuckets {
@@ -57,18 +56,18 @@ func (b *BoltDB) Create(purchase store.Purchase) (purchaseID string, err error) 
 
 	err = b.db.Update(func(tx *bolt.Tx) error {
 
-		postBkt, e := b.makePurchaseBucket(tx, purchase.User.ID)
+		purchaseBkt, e := b.makePurchaseBucket(tx, purchase.User.ID)
 		if e != nil {
 			return e
 		}
 
 		// check if key already in store, reject doubles
-		if postBkt.Get([]byte(purchase.ID)) != nil {
+		if purchaseBkt.Get([]byte(purchase.ID)) != nil {
 			return errors.Errorf("key %s already in store", purchase.ID)
 		}
 
 		// serialize comment to json []byte for bolt and save
-		if e = b.save(postBkt, []byte(purchase.ID), purchase); e != nil {
+		if e = b.save(purchaseBkt, []byte(purchase.ID), purchase); e != nil {
 			return errors.Wrapf(e, "failed to put key %s", purchase.ID)
 		}
 
@@ -78,8 +77,8 @@ func (b *BoltDB) Create(purchase store.Purchase) (purchaseID string, err error) 
 	return purchase.ID, err
 }
 
-// Find returns all purchases for user
-func (b *BoltDB) Find(user store.User) (purchases []store.Purchase, err error) {
+// List of all purchases for user
+func (b *BoltDB) List(user store.User) (purchases []store.Purchase, err error) {
 	purchases = []store.Purchase{}
 
 	err = b.db.View(func(tx *bolt.Tx) error {

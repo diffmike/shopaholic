@@ -12,7 +12,7 @@ type DataStore struct {
 	engine.Interface
 }
 
-func (s *DataStore) Create(purchase store.Purchase) (purchaseID string, err error) {
+func (s *DataStore) Purchase(purchase store.Purchase) (purchaseID string, err error) {
 	if purchase, err = s.prepareNewPurchase(purchase); err != nil {
 		return "", errors.Wrap(err, "failed to prepare comment")
 	}
