@@ -66,7 +66,6 @@ func getDump() string {
 }
 
 func init() {
-	// catch SIGQUIT and print stack traces
 	sigChan := make(chan os.Signal)
 	go func() {
 		for range sigChan {

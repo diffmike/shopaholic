@@ -33,14 +33,14 @@ func TestBoltDB_CreateAndList(t *testing.T) {
 }
 
 func TestBoltDB_New(t *testing.T) {
-	_, err := NewBoltDB(bolt.Options{}, BoltInstance{FileName: "/tmp/no-such-place/tmp.db"})
+	_, err := NewBoltDB(bolt.Options{}, "/tmp/no-such-place/tmp.db")
 	assert.EqualError(t, err, "failed to make boltdb for /tmp/no-such-place/tmp.db: open /tmp/no-such-place/tmp.db: no such file or directory")
 }
 
 func prep(t *testing.T) *BoltDB {
 	os.Remove(testDb)
 
-	boltStore, err := NewBoltDB(bolt.Options{}, BoltInstance{FileName: testDb})
+	boltStore, err := NewBoltDB(bolt.Options{}, testDb)
 	assert.Nil(t, err)
 	b := boltStore
 

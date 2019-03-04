@@ -19,19 +19,15 @@ const (
 	usersBucketName     = "users"
 )
 
-type BoltInstance struct {
-	FileName string // full path to boltdb
-}
-
-func NewBoltDB(options bolt.Options, instance BoltInstance) (*BoltDB, error) {
+func NewBoltDB(options bolt.Options, filename string) (*BoltDB, error) {
 	log.Printf("[INFO] bolt store with options %+v", options)
 
 	result := BoltDB{}
-	db, err := bolt.Open(instance.FileName, 0600, &options) // bolt.Options{Timeout: 30 * time.Second}
+	db, err := bolt.Open(filename, 0600, &options) // bolt.Options{Timeout: 30 * time.Second}
 	result.db = db
 
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to make boltdb for %s", instance.FileName)
+		return nil, errors.Wrapf(err, "failed to make boltdb for %s", filename)
 	}
 
 	topBuckets := []string{purchasesBucketName, usersBucketName}
@@ -138,7 +134,7 @@ func (b *BoltDB) Close() error {
 	return errs.ErrorOrNil()
 }
 
-// getPurchaseBucket return bucket with all comments for postURL
+// getPurchaseBucket return bucket with all purchases for the user
 func (b *BoltDB) getPurchaseBucket(tx *bolt.Tx, userID string) (*bolt.Bucket, error) {
 	postsBkt := tx.Bucket([]byte(purchasesBucketName))
 	if postsBkt == nil {
@@ -180,7 +176,7 @@ func (b *BoltDB) save(bkt *bolt.Bucket, key []byte, value interface{}) (err erro
 	}
 	jdata, jerr := json.Marshal(value)
 	if jerr != nil {
-		return errors.Wrap(jerr, "can't marshal comment")
+		return errors.Wrap(jerr, "can't marshal data")
 	}
 	if err = bkt.Put(key, jdata); err != nil {
 		return errors.Wrapf(err, "failed to save key %s", key)

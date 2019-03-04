@@ -3,10 +3,12 @@ package engine
 import (
 	bolt "github.com/coreos/bbolt"
 	"github.com/pkg/errors"
+	"log"
 	"shopaholic/store"
 )
 
 func (b *BoltDB) Register(user store.User) (userID string, err error) {
+	log.Printf("[INFO] storing user %s into the bucket", user.Name)
 	err = b.db.Update(func(tx *bolt.Tx) error {
 		usersBkt := tx.Bucket([]byte(usersBucketName))
 
@@ -26,7 +28,7 @@ func (b *BoltDB) Register(user store.User) (userID string, err error) {
 	return user.ID, err
 }
 
-func (b *BoltDB) Retrieve(userID string) (user store.User, err error) {
+func (b *BoltDB) Details(userID string) (user store.User, err error) {
 	err = b.db.View(func(tx *bolt.Tx) error {
 		usersBkt := tx.Bucket([]byte(usersBucketName))
 		return b.load(usersBkt, []byte(userID), &user)
