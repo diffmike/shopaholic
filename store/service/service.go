@@ -44,3 +44,7 @@ func (s *DataStore) Register(user store.User) (userID string, err error) {
 	log.Printf("[INFO] storing user %+v", user)
 	return s.Interface.Register(user)
 }
+
+func (s *DataStore) UserList(number int) ([]store.User, error) {
+	return s.Interface.Users(number)
+}

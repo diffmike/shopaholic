@@ -18,4 +18,5 @@ type Purchase interface {
 type User interface {
 	Register(user store.User) (userID string, err error)
 	Details(userID string) (store.User, error)
+	Users(number int) ([]store.User, error)
 }

@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"encoding/json"
 	bolt "github.com/coreos/bbolt"
 	"github.com/pkg/errors"
 	"log"
@@ -34,4 +35,22 @@ func (b *BoltDB) Details(userID string) (user store.User, err error) {
 		return b.load(usersBkt, []byte(userID), &user)
 	})
 	return user, err
+}
+
+func (b *BoltDB) Users(number int) (users []store.User, err error) {
+	users = []store.User{}
+
+	err = b.db.View(func(tx *bolt.Tx) error {
+		usersBkt := tx.Bucket([]byte(usersBucketName))
+
+		return usersBkt.ForEach(func(k, v []byte) error {
+			user := store.User{}
+			if e := json.Unmarshal(v, &user); e != nil {
+				return errors.Wrap(e, "failed to unmarshal")
+			}
+			users = append(users, user)
+			return nil
+		})
+	})
+	return users, err
 }

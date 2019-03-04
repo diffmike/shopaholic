@@ -32,7 +32,7 @@ func TestBoltDB_Retrieve(t *testing.T) {
 
 	userID, _ := b.Register(user)
 
-	result, _ := b.Retrieve(userID)
+	result, _ := b.Details(userID)
 	assert.Equal(t, "user1", result.ID)
 	assert.Equal(t, "user name", result.Name)
 }

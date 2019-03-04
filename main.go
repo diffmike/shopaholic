@@ -14,7 +14,8 @@ import (
 
 // Opts with all cli commands and flags
 type Opts struct {
-	UserCmd cmd.UserCommand `command:"user"`
+	cmd.UserCreateCommand `command:"user:create"`
+	cmd.UserListCommand   `command:"user:list"`
 
 	Dbg bool `long:"dbg" env:"DEBUG" description:"debug mode"`
 }

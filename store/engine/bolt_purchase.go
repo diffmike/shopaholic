@@ -160,15 +160,6 @@ func (b *BoltDB) makePurchaseBucket(tx *bolt.Tx, userID string) (*bolt.Bucket, e
 	return res, nil
 }
 
-func (b *BoltDB) getUserBucket(tx *bolt.Tx, userID string) (*bolt.Bucket, error) {
-	usersBkt := tx.Bucket([]byte(usersBucketName))
-	userIDBkt, e := usersBkt.CreateBucketIfNotExists([]byte(userID)) // get bucket for userID
-	if e != nil {
-		return nil, errors.Wrapf(e, "can't get bucket %s", userID)
-	}
-	return userIDBkt, nil
-}
-
 // save marshaled value to key for bucket. Should run in update tx
 func (b *BoltDB) save(bkt *bolt.Bucket, key []byte, value interface{}) (err error) {
 	if value == nil {
