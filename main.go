@@ -2,11 +2,15 @@ package main
 
 import (
 	"fmt"
+	"github.com/coreos/bbolt"
 	"os"
 	"os/signal"
 	"runtime"
 	"shopaholic/cmd"
+	"shopaholic/store/engine"
+	"shopaholic/store/service"
 	"syscall"
+	"time"
 
 	log "github.com/go-pkgz/lgr"
 	"github.com/jessevdk/go-flags"
@@ -16,6 +20,9 @@ import (
 type Opts struct {
 	cmd.UserCreateCommand `command:"user:create"`
 	cmd.UserListCommand   `command:"user:list"`
+
+	Currency   string `long:"currency" env:"CURRENCY" default:"usd" description:"money currency"`
+	DBFilename string `long:"dbfilename" env:"DBFILENAME" default:"shopaholic.db" description:"database filename"`
 
 	Dbg bool `long:"dbg" env:"DEBUG" description:"debug mode"`
 }
@@ -27,10 +34,15 @@ func main() {
 
 	var opts Opts
 	p := flags.NewParser(&opts, flags.Default)
+
 	p.CommandHandler = func(command flags.Commander, args []string) error {
 		setupLog(opts.Dbg)
 		// commands implements CommonOptionsCommander to allow passing set of extra options defined for all commands
 		c := command.(cmd.Commander)
+		c.SetCommon(cmd.CommonOpts{
+			Currency: opts.Currency,
+			Store:    *initDataStore(opts.DBFilename),
+		})
 		err := c.Execute(args)
 		if err != nil {
 			log.Printf("[ERROR] failed with %+v", err)
@@ -45,6 +57,16 @@ func main() {
 			os.Exit(1)
 		}
 	}
+}
+
+func initDataStore(dbFilename string) *service.DataStore {
+	b, err := engine.NewBoltDB(bbolt.Options{Timeout: 30 * time.Second}, dbFilename)
+	if err != nil {
+		log.Printf("[ERROR] can not initiate DB %s", dbFilename)
+		os.Exit(0)
+	}
+
+	return &service.DataStore{Interface: b}
 }
 
 func setupLog(dbg bool) {

@@ -29,7 +29,7 @@ func TestBoltDB_CreateAndList(t *testing.T) {
 	_, err = b.List(store.User{ID: "user-not-found"})
 	assert.EqualError(t, err, `no bucket user-not-found in store`)
 
-	assert.NoError(t, b.Close())
+	assert.NoError(t, b.Disconnect())
 }
 
 func TestBoltDB_New(t *testing.T) {
