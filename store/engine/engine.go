@@ -25,6 +25,7 @@ type User interface {
 	Register(user store.User) (userID string, err error)
 	Details(userID string) (store.User, error)
 	Users(number int) ([]store.User, error)
+	UpdateUser(user store.User) error
 }
 
 type Category interface {

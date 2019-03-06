@@ -14,14 +14,22 @@ type DataStore struct {
 	engine.Interface
 }
 
-func (s *DataStore) Expense(transaction store.Transaction) (transactionID string, err error) {
+func (s *DataStore) StoreTransaction(transaction store.Transaction) (transactionID string, err error) {
+	if utils.ToMoney(transaction.Amount).IsPositive() {
+		return s.income(transaction)
+	} else {
+		return s.expense(transaction)
+	}
+}
+
+func (s *DataStore) expense(transaction store.Transaction) (transactionID string, err error) {
+	transaction.Type = store.Expense
 	if transaction, err = s.prepareNewTransaction(transaction); err != nil {
 		return "", errors.Wrap(err, "failed to prepare transaction")
 	}
 	if utils.ToMoney(transaction.Amount).IsPositive() {
 		return "", errors.Wrap(err, "expense amount have to be negative")
 	}
-	transaction.Type = store.Expense
 	if transaction, err = s.adjustBalanceByTransaction(transaction); err != nil {
 		return "", errors.Wrap(err, "failed to adjust balance")
 	}
@@ -29,14 +37,14 @@ func (s *DataStore) Expense(transaction store.Transaction) (transactionID string
 	return s.Interface.Create(transaction)
 }
 
-func (s *DataStore) Income(transaction store.Transaction) (transactionID string, err error) {
+func (s *DataStore) income(transaction store.Transaction) (transactionID string, err error) {
+	transaction.Type = store.Income
 	if transaction, err = s.prepareNewTransaction(transaction); err != nil {
 		return "", errors.Wrap(err, "failed to prepare transaction")
 	}
 	if utils.ToMoney(transaction.Amount).IsNegative() {
 		return "", errors.Wrap(err, "expense amount have to be positive")
 	}
-	transaction.Type = store.Income
 	if transaction, err = s.adjustBalanceByTransaction(transaction); err != nil {
 		return "", errors.Wrap(err, "failed to adjust balance")
 	}
@@ -51,7 +59,11 @@ func (s *DataStore) adjustBalanceByTransaction(transaction store.Transaction) (s
 		return transaction, err
 	}
 	transaction.BalanceNow = utils.FromMoney(balanceWas)
+
 	transaction.User.Balance = transaction.BalanceNow
+	if s.UpdateUser(transaction.User) != nil {
+		return transaction, err
+	}
 
 	return transaction, nil
 }
@@ -90,7 +102,7 @@ func (s *DataStore) Register(user store.User) (userID string, err error) {
 		}
 
 		transaction.User.Balance.Amount = 0
-		if _, err = s.Income(transaction); err != nil {
+		if _, err = s.StoreTransaction(transaction); err != nil {
 			return "", err
 		}
 	}

@@ -18,8 +18,9 @@ import (
 
 // Opts with all cli commands and flags
 type Opts struct {
-	cmd.UserCreateCommand `command:"user:create"`
-	cmd.UserListCommand   `command:"user:list"`
+	cmd.UserCreateCommand        `command:"user:create"`
+	cmd.UserListCommand          `command:"user:list"`
+	cmd.TransactionCreateCommand `command:"transaction:create"`
 
 	Currency   string `long:"currency" env:"CURRENCY" default:"usd" description:"money currency"`
 	DBFilename string `long:"dbfilename" env:"DBFILENAME" default:"shopaholic.db" description:"database filename"`

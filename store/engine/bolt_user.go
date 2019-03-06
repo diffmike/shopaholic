@@ -29,6 +29,13 @@ func (b *BoltDB) Register(user store.User) (userID string, err error) {
 	return user.ID, err
 }
 
+func (b *BoltDB) UpdateUser(user store.User) error {
+	return b.db.Update(func(tx *bolt.Tx) error {
+		usersBkt := tx.Bucket([]byte(usersBucketName))
+		return b.save(usersBkt, []byte(user.ID), user)
+	})
+}
+
 func (b *BoltDB) Details(userID string) (user store.User, err error) {
 	err = b.db.View(func(tx *bolt.Tx) error {
 		usersBkt := tx.Bucket([]byte(usersBucketName))
