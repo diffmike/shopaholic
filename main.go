@@ -21,6 +21,7 @@ type Opts struct {
 	cmd.UserCreateCommand        `command:"user:create"`
 	cmd.UserListCommand          `command:"user:list"`
 	cmd.TransactionCreateCommand `command:"transaction:create"`
+	cmd.TransactionListCommand   `command:"transaction:list"`
 
 	Currency   string `long:"currency" env:"CURRENCY" default:"usd" description:"money currency"`
 	DBFilename string `long:"dbfilename" env:"DBFILENAME" default:"shopaholic.db" description:"database filename"`
