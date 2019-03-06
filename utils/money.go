@@ -10,3 +10,10 @@ type Money struct {
 func ToMoney(m Money) *money.Money {
 	return money.New(m.Amount, m.Currency)
 }
+
+func FromMoney(m *money.Money) Money {
+	return Money{
+		Amount:   m.Amount(),
+		Currency: m.Currency().Code,
+	}
+}

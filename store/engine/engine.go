@@ -5,7 +5,7 @@ import (
 )
 
 type Interface interface {
-	Purchase
+	Transaction
 	User
 }
 
@@ -13,11 +13,11 @@ type Connection interface {
 	Disconnect() error // close/stop engine
 }
 
-type Purchase interface {
-	Create(purchase store.Purchase) (purchaseID string, err error)  // create new purchase, avoid dups by id
-	Get(user store.User, purchaseID string) (store.Purchase, error) // get purchase by id
-	Put(user store.User, purchase store.Purchase) error             // update purchase, mutable parts only
-	List(user store.User) ([]store.Purchase, error)                 // list purchases for user
+type Transaction interface {
+	Create(transaction store.Transaction) (transactionID string, err error) // create new transaction, avoid dups by id
+	Get(user store.User, transactionID string) (store.Transaction, error)   // get transaction by id
+	Put(user store.User, transaction store.Transaction) error               // update transaction, mutable parts only
+	List(user store.User) ([]store.Transaction, error)                      // list transactions for user
 }
 
 type User interface {

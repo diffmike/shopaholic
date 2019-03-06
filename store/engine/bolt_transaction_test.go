@@ -5,11 +5,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"os"
 	"shopaholic/store"
+	"shopaholic/utils"
 	"testing"
 	"time"
 )
 
-var testDb = "test-purchase.db"
+var testDb = "test-transaction.db"
 
 func TestBoltDB_CreateAndList(t *testing.T) {
 	defer os.Remove(testDb)
@@ -18,11 +19,11 @@ func TestBoltDB_CreateAndList(t *testing.T) {
 	res, err := b.List(store.User{ID: "user1"})
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(res))
-	assert.Equal(t, 2121, res[0].Amount)
+	assert.Equal(t, utils.Money{2121, "usd"}, res[0].Amount)
 	assert.Equal(t, "user1", res[0].User.ID)
 	t.Log(res[0].ID)
 
-	_, err = b.Create(store.Purchase{ID: res[0].ID, User: store.User{ID: "user1"}})
+	_, err = b.Create(store.Transaction{ID: res[0].ID, User: store.User{ID: "user1"}})
 	assert.NotNil(t, err)
 	assert.Equal(t, "key id-1 already in store", err.Error())
 
@@ -44,22 +45,22 @@ func prep(t *testing.T) *BoltDB {
 	assert.Nil(t, err)
 	b := boltStore
 
-	purchase := store.Purchase{
+	transaction := store.Transaction{
 		ID:        "id-1",
-		Amount:    2121,
+		Amount:    utils.Money{2121, "usd"},
 		CreatedAt: time.Date(2017, 12, 20, 15, 18, 22, 0, time.Local),
 		User:      store.User{ID: "user1", Name: "user name"},
 	}
-	_, err = b.Create(purchase)
+	_, err = b.Create(transaction)
 	assert.Nil(t, err)
 
-	purchase2 := store.Purchase{
+	transaction2 := store.Transaction{
 		ID:        "id-2",
-		Amount:    21212,
+		Amount:    utils.Money{21212, "usd"},
 		CreatedAt: time.Date(2017, 12, 20, 15, 18, 22, 0, time.Local),
 		User:      store.User{ID: "user2", Name: "second name"},
 	}
-	_, err = b.Create(purchase2)
+	_, err = b.Create(transaction2)
 	assert.Nil(t, err)
 
 	return b

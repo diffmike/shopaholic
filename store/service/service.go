@@ -6,6 +6,7 @@ import (
 	"log"
 	"shopaholic/store"
 	"shopaholic/store/engine"
+	"shopaholic/utils"
 	"time"
 )
 
@@ -13,23 +14,56 @@ type DataStore struct {
 	engine.Interface
 }
 
-func (s *DataStore) Purchase(purchase store.Purchase) (purchaseID string, err error) {
-	if purchase, err = s.prepareNewPurchase(purchase); err != nil {
-		return "", errors.Wrap(err, "failed to prepare comment")
+func (s *DataStore) Expense(transaction store.Transaction) (transactionID string, err error) {
+	if transaction, err = s.prepareNewTransaction(transaction); err != nil {
+		return "", errors.Wrap(err, "failed to prepare transaction")
+	}
+	if utils.ToMoney(transaction.Amount).IsPositive() {
+		return "", errors.Wrap(err, "expense amount have to be negative")
+	}
+	transaction.Type = store.Expense
+	if transaction, err = s.adjustBalanceByTransaction(transaction); err != nil {
+		return "", errors.Wrap(err, "failed to adjust balance")
 	}
 
-	return s.Interface.Create(purchase)
+	return s.Interface.Create(transaction)
 }
 
-func (s *DataStore) prepareNewPurchase(purchase store.Purchase) (store.Purchase, error) {
-	if purchase.ID == "" {
-		purchase.ID = uuid.New().String()
+func (s *DataStore) Income(transaction store.Transaction) (transactionID string, err error) {
+	if transaction, err = s.prepareNewTransaction(transaction); err != nil {
+		return "", errors.Wrap(err, "failed to prepare transaction")
 	}
-	if purchase.CreatedAt.IsZero() {
-		purchase.CreatedAt = time.Now()
+	if utils.ToMoney(transaction.Amount).IsNegative() {
+		return "", errors.Wrap(err, "expense amount have to be positive")
+	}
+	transaction.Type = store.Income
+	if transaction, err = s.adjustBalanceByTransaction(transaction); err != nil {
+		return "", errors.Wrap(err, "failed to adjust balance")
 	}
 
-	return purchase, nil
+	return s.Interface.Create(transaction)
+}
+
+func (s *DataStore) adjustBalanceByTransaction(transaction store.Transaction) (store.Transaction, error) {
+	transaction.BalanceWas = transaction.User.Balance
+	balanceWas, err := utils.ToMoney(transaction.User.Balance).Add(utils.ToMoney(transaction.Amount))
+	if err != nil {
+		return transaction, err
+	}
+	transaction.BalanceNow = utils.FromMoney(balanceWas)
+
+	return transaction, nil
+}
+
+func (s *DataStore) prepareNewTransaction(transaction store.Transaction) (store.Transaction, error) {
+	if transaction.ID == "" {
+		transaction.ID = uuid.New().String()
+	}
+	if transaction.CreatedAt.IsZero() {
+		transaction.CreatedAt = time.Now()
+	}
+
+	return transaction, nil
 }
 
 func (s *DataStore) Register(user store.User) (userID string, err error) {
