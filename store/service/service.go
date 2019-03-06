@@ -51,6 +51,7 @@ func (s *DataStore) adjustBalanceByTransaction(transaction store.Transaction) (s
 		return transaction, err
 	}
 	transaction.BalanceNow = utils.FromMoney(balanceWas)
+	transaction.User.Balance = transaction.BalanceNow
 
 	return transaction, nil
 }
@@ -59,8 +60,13 @@ func (s *DataStore) prepareNewTransaction(transaction store.Transaction) (store.
 	if transaction.ID == "" {
 		transaction.ID = uuid.New().String()
 	}
+
 	if transaction.CreatedAt.IsZero() {
 		transaction.CreatedAt = time.Now()
+	}
+
+	if transaction.Category.ID == "" {
+		transaction.Category, _ = s.Interface.DefaultCategory(transaction.Type)
 	}
 
 	return transaction, nil
@@ -75,8 +81,21 @@ func (s *DataStore) Register(user store.User) (userID string, err error) {
 		user.CreatedAt = time.Now()
 	}
 
-	log.Printf("[INFO] storing user %+v", user)
-	return s.Interface.Register(user)
+	userID, err = s.Interface.Register(user)
+	if user.Balance.Amount > 0 {
+		transaction := store.Transaction{
+			User:   user,
+			Type:   store.Income,
+			Amount: user.Balance,
+		}
+
+		transaction.User.Balance.Amount = 0
+		if _, err = s.Income(transaction); err != nil {
+			return "", err
+		}
+	}
+
+	return userID, err
 }
 
 func (s *DataStore) UserList(number int) ([]store.User, error) {

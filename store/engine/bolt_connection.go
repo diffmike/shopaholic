@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"log"
+	"shopaholic/store"
 )
 
 type BoltDB struct {
@@ -13,8 +14,9 @@ type BoltDB struct {
 }
 
 const (
-	purchasesBucketName = "purchases"
-	usersBucketName     = "users"
+	purchasesBucketName  = "purchases"
+	usersBucketName      = "users"
+	categoriesBucketName = "categories"
 )
 
 func NewBoltDB(options bolt.Options, filename string) (*BoltDB, error) {
@@ -28,7 +30,7 @@ func NewBoltDB(options bolt.Options, filename string) (*BoltDB, error) {
 		return nil, errors.Wrapf(err, "failed to make boltdb for %s", filename)
 	}
 
-	topBuckets := []string{purchasesBucketName, usersBucketName}
+	topBuckets := []string{purchasesBucketName, usersBucketName, categoriesBucketName}
 	err = db.Update(func(tx *bolt.Tx) error {
 		for _, bktName := range topBuckets {
 			if _, e := tx.CreateBucketIfNotExists([]byte(bktName)); e != nil {
@@ -39,7 +41,11 @@ func NewBoltDB(options bolt.Options, filename string) (*BoltDB, error) {
 	})
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create top level bucket)")
+		return nil, errors.Wrap(err, "failed to create top level bucket")
+	}
+
+	if err = result.storeDefaultCategories(); err != nil {
+		return nil, errors.Wrap(err, "failed to store default categories")
 	}
 
 	return &result, nil
@@ -89,7 +95,6 @@ func (b *BoltDB) save(bkt *bolt.Bucket, key []byte, value interface{}) (err erro
 	if jerr != nil {
 		return errors.Wrap(jerr, "can't marshal data")
 	}
-	log.Printf("[INFO] storing from %+v to %s", value, jdata)
 	if err = bkt.Put(key, jdata); err != nil {
 		return errors.Wrapf(err, "failed to save key %s", key)
 	}
@@ -105,5 +110,32 @@ func (b *BoltDB) load(bkt *bolt.Bucket, key []byte, res interface{}) error {
 	if err := json.Unmarshal(value, &res); err != nil {
 		return errors.Wrap(err, "failed to unmarshal")
 	}
+	return nil
+}
+
+func (b *BoltDB) storeDefaultCategories() error {
+	s := Category(b)
+	if num, _ := s.CountCategories(); num > 0 {
+		return nil
+	}
+
+	category := store.Category{
+		Title:     "Products",
+		IsDefault: true,
+		Type:      store.Expense,
+	}
+	if _, err := s.StoreCategory(category); err != nil {
+		return errors.Wrapf(err, "failed to save default category")
+	}
+
+	category = store.Category{
+		Title:     "Salary",
+		IsDefault: true,
+		Type:      store.Income,
+	}
+	if _, err := s.StoreCategory(category); err != nil {
+		return errors.Wrapf(err, "failed to save default category")
+	}
+
 	return nil
 }

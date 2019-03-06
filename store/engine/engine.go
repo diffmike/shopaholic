@@ -7,6 +7,7 @@ import (
 type Interface interface {
 	Transaction
 	User
+	Category
 }
 
 type Connection interface {
@@ -24,4 +25,10 @@ type User interface {
 	Register(user store.User) (userID string, err error)
 	Details(userID string) (store.User, error)
 	Users(number int) ([]store.User, error)
+}
+
+type Category interface {
+	StoreCategory(category store.Category) (categoryID string, err error)
+	CountCategories() (number int, err error)
+	DefaultCategory(t store.Type) (category store.Category, err error)
 }
