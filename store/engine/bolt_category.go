@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"shopaholic/store"
+	"strings"
 	"time"
 )
 
@@ -50,6 +51,27 @@ func (b *BoltDB) DefaultCategory(t store.Type) (category store.Category, err err
 		for k, _ := c.First(); k != nil; k, _ = c.Next() {
 			_ = b.load(categoriesBkt, k, &tmpCat)
 			if tmpCat.IsDefault && tmpCat.Type == t {
+				category = tmpCat
+				break
+			}
+		}
+
+		return nil
+	})
+
+	return category, err
+}
+
+func (b *BoltDB) FindCategoryByTitle(title string) (category store.Category, err error) {
+	err = b.db.View(func(tx *bolt.Tx) error {
+		title = strings.ToLower(title)
+		categoriesBkt := tx.Bucket([]byte(categoriesBucketName))
+
+		c := categoriesBkt.Cursor()
+		tmpCat := store.Category{}
+		for k, _ := c.First(); k != nil; k, _ = c.Next() {
+			_ = b.load(categoriesBkt, k, &tmpCat)
+			if strings.ToLower(tmpCat.Title) == title {
 				category = tmpCat
 				break
 			}

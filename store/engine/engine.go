@@ -32,4 +32,5 @@ type Category interface {
 	StoreCategory(category store.Category) (categoryID string, err error)
 	CountCategories() (number int, err error)
 	DefaultCategory(t store.Type) (category store.Category, err error)
+	FindCategoryByTitle(title string) (category store.Category, err error)
 }

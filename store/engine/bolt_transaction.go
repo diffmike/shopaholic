@@ -5,6 +5,7 @@ import (
 	bolt "github.com/coreos/bbolt"
 	"github.com/pkg/errors"
 	"shopaholic/store"
+	"sort"
 )
 
 // Create new transaction to store. Adds to transactions bucket
@@ -52,6 +53,10 @@ func (b *BoltDB) List(user store.User) (transactions []store.Transaction, err er
 			transactions = append(transactions, transaction)
 			return nil
 		})
+	})
+
+	sort.Slice(transactions, func(i, j int) bool {
+		return transactions[i].CreatedAt.After(transactions[j].CreatedAt)
 	})
 
 	return transactions, err

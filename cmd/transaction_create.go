@@ -21,9 +21,15 @@ func (tcc *TransactionCreateCommand) Execute(args []string) error {
 		return err
 	}
 
+	category, err := tcc.Store.FindCategoryByTitle(tcc.Category)
+	if err != nil {
+		return err
+	}
+
 	transaction := store.Transaction{
-		User:   user,
-		Amount: utils.Money{int64(tcc.Amount * 100), tcc.CommonOpts.Currency},
+		User:     user,
+		Category: category,
+		Amount:   utils.Money{int64(tcc.Amount * 100), tcc.CommonOpts.Currency},
 	}
 
 	transactionID, err := tcc.Store.StoreTransaction(transaction)

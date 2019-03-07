@@ -20,7 +20,9 @@ func (ulc *UserListCommand) Execute(args []string) error {
 	}
 
 	for _, user := range users {
-		log.Printf("%+v", user)
+		balance := float64(user.Balance.Amount / 100)
+		created := user.CreatedAt.Format("02.01.2006 15:04:05")
+		log.Printf("ID: %s. Name: %10s. Created: %s. Balance: %6.2f", user.ID, user.Name, created, balance)
 	}
 
 	return nil
