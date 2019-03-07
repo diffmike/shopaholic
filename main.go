@@ -23,13 +23,16 @@ type Opts struct {
 	cmd.TransactionCreateCommand `command:"transaction:create"`
 	cmd.TransactionListCommand   `command:"transaction:list"`
 
+	cmd.BotPollerCommand `command:"bot:start"`
+
 	Currency   string `long:"currency" env:"CURRENCY" default:"usd" description:"money currency"`
 	DBFilename string `long:"dbfilename" env:"DBFILENAME" default:"shopaholic.db" description:"database filename"`
+	BotToken   string `long:"bot_token" env:"BOT_TOKEN" description:"token of the bot"`
 
 	Dbg bool `long:"dbg" env:"DEBUG" description:"debug mode"`
 }
 
-var revision = "unknown"
+var revision = "0.2.0"
 
 func main() {
 	fmt.Printf("shopaholic %s\n", revision)
@@ -44,6 +47,7 @@ func main() {
 		c.SetCommon(cmd.CommonOpts{
 			Currency: opts.Currency,
 			Store:    *initDataStore(opts.DBFilename),
+			BotToken: opts.BotToken,
 		})
 		err := c.Execute(args)
 		if err != nil {

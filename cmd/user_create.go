@@ -18,7 +18,7 @@ func (ucc *UserCreateCommand) Execute(args []string) error {
 	log.Printf("[INFO] user %s creating command is started", ucc.Name)
 	user := store.User{
 		Name:    ucc.Name,
-		Balance: utils.Money{int64(ucc.Balance * 100), ucc.CommonOpts.Currency},
+		Balance: utils.Money{int64(ucc.Balance * 100), ucc.Currency},
 	}
 
 	userID, err := ucc.Store.Register(user)

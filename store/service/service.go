@@ -94,7 +94,7 @@ func (s *DataStore) Register(user store.User) (userID string, err error) {
 	}
 
 	userID, err = s.Interface.Register(user)
-	if user.Balance.Amount > 0 {
+	if utils.ToMoney(user.Balance).IsPositive() {
 		transaction := store.Transaction{
 			User:   user,
 			Type:   store.Income,

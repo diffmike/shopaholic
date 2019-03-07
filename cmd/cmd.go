@@ -11,9 +11,11 @@ type Commander interface {
 type CommonOpts struct {
 	Currency string
 	Store    service.DataStore
+	BotToken string
 }
 
 func (c *CommonOpts) SetCommon(commonOpts CommonOpts) {
 	c.Currency = commonOpts.Currency
 	c.Store = commonOpts.Store
+	c.BotToken = commonOpts.BotToken
 }
