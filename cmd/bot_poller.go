@@ -34,6 +34,9 @@ func (bpc *BotPollerCommand) Execute(args []string) error {
 	b.Handle("/start", func(m *tb.Message) {
 		_ = processCommand(&tg_bot.StartCommand{}, opts, m)
 	})
+	b.Handle("/history", func(m *tb.Message) {
+		_ = processCommand(&tg_bot.HistoryCommand{}, opts, m)
+	})
 
 	b.Handle(tb.OnText, func(m *tb.Message) {
 		_ = processCommand(&tg_bot.TransactionCommand{}, opts, m)

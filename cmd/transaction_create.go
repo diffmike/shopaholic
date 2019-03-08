@@ -29,7 +29,7 @@ func (tcc *TransactionCreateCommand) Execute(args []string) error {
 	transaction := store.Transaction{
 		User:     user,
 		Category: category,
-		Amount:   utils.Money{int64(tcc.Amount * 100), tcc.CommonOpts.Currency},
+		Amount:   utils.Money{int64(tcc.Amount * 100), tcc.Currency},
 	}
 
 	transactionID, err := tcc.Store.StoreTransaction(transaction)
