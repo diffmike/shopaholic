@@ -43,8 +43,8 @@ func (c *TransactionCommand) Execute(m *tb.Message) error {
 		return err
 	}
 
-	result := fmt.Sprintf("Transaction for %.2f$ was created in the category %s.\nCurrent balance is %.2f$",
-		float64(amount/100), category.Title, float64(transaction.BalanceNow.Amount/100))
+	result := fmt.Sprintf("Transaction for %.2f$ was created in the category %s",
+		float64(amount/100), category.Title)
 	log.Printf("[INFO] %s. ID: %s", result, transactionID)
 	_, err = c.Bot.Send(m.Sender, result)
 	return err
@@ -52,7 +52,7 @@ func (c *TransactionCommand) Execute(m *tb.Message) error {
 
 func parseTransactionMessage(message string) (amount int64, category string, err error) {
 	s := strings.Split(message, " ")
-	log.Printf("[INFO] amount: %+v", s)
+	log.Printf("[DEBUG] amount to parse: %+v", s)
 	if len(s) < 2 {
 		s = append(s, "")
 	}
