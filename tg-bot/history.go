@@ -30,9 +30,9 @@ func (c *HistoryCommand) Execute(m *tb.Message) error {
 		amount := float64(transaction.Amount.Amount / 100)
 		balanceWas := float64(transaction.BalanceWas.Amount / 100)
 		balanceNow := float64(transaction.BalanceNow.Amount / 100)
-		time := transaction.CreatedAt.Format("02.01.2006 15:04:05")
-		result := fmt.Sprintf("Balance: was %.2f, now %.2f. Created: %s. Amount %.2f. Category %s",
-			balanceWas, balanceNow, time, amount, transaction.Category.Title)
+		time := transaction.CreatedAt.Format("02.01.2006 15:04")
+		result := fmt.Sprintf("%s. %.2f$ at %s. Balance was %.2f$, now %.2f$",
+			time, amount, transaction.Category.Title, balanceWas, balanceNow)
 		results = append(results, result)
 	}
 
