@@ -9,7 +9,7 @@ import (
 
 func TestBoltDB_DefaultCategory(t *testing.T) {
 	defer os.Remove(testDb)
-	b := prep(t)
+	b := prepBolt(t)
 
 	category, err := b.DefaultCategory(store.Income)
 	assert.Equal(t, true, category.IsDefault)
@@ -24,7 +24,7 @@ func TestBoltDB_DefaultCategory(t *testing.T) {
 
 func TestBoltDB_CountCategories(t *testing.T) {
 	defer os.Remove(testDb)
-	b := prep(t)
+	b := prepBolt(t)
 
 	count, err := b.CountCategories()
 	assert.Equal(t, 2, count, "2 default categories have to be created on init")

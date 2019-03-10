@@ -14,7 +14,7 @@ var testDb = "test-transaction.db"
 
 func TestBoltDB_CreateAndList(t *testing.T) {
 	defer os.Remove(testDb)
-	var b = prep(t)
+	var b = prepBolt(t)
 
 	res, err := b.List(store.User{ID: "user1"})
 	assert.Nil(t, err)
@@ -38,7 +38,7 @@ func TestBoltDB_New(t *testing.T) {
 	assert.EqualError(t, err, "failed to make boltdb for /tmp/no-such-place/tmp.db: open /tmp/no-such-place/tmp.db: no such file or directory")
 }
 
-func prep(t *testing.T) *BoltDB {
+func prepBolt(t *testing.T) *BoltDB {
 	os.Remove(testDb)
 
 	boltStore, err := NewBoltDB(bolt.Options{}, testDb)

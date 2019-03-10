@@ -9,7 +9,7 @@ import (
 
 func TestBoltDB_Register(t *testing.T) {
 	defer os.Remove(testDb)
-	b := prep(t)
+	b := prepBolt(t)
 	user := store.User{
 		ID:   "user1",
 		Name: "user name",
@@ -24,7 +24,7 @@ func TestBoltDB_Register(t *testing.T) {
 
 func TestBoltDB_Retrieve(t *testing.T) {
 	defer os.Remove(testDb)
-	b := prep(t)
+	b := prepBolt(t)
 	user := store.User{
 		ID:   "user1",
 		Name: "user name",
