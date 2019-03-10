@@ -7,9 +7,9 @@ type HelpCommand struct {
 }
 
 func (c *HelpCommand) Execute(m *tb.Message) error {
-	helpText := "Thanks for asking!\nAvailable commands:\n" +
-		"/history - showing latest transactions\n" +
-		"/info - show your current details: balance, transactions amount, creation date, etc"
+	helpText := "Thanks for asking!\n❔Available commands:\n" +
+		"/history - showing latest transactions 📜\n" +
+		"/info - show your details 🤓"
 	_, err := c.Bot.Send(m.Sender, helpText)
 
 	return err

@@ -28,7 +28,7 @@ func (c *StartCommand) Execute(m *tb.Message) error {
 
 	log.Printf("[INFO] user %s was created with ID: %s", user.Name, userID)
 
-	helloText := "Hi man! Let's try to add a bit of structure to your finances"
+	helloText := "Hi man! Let's try to add a bit of structure to your finances 🧐"
 	_, err = c.Bot.Send(m.Sender, helloText)
 
 	return err

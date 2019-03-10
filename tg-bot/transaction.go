@@ -43,7 +43,7 @@ func (c *TransactionCommand) Execute(m *tb.Message) error {
 		return err
 	}
 
-	result := fmt.Sprintf("Transaction for %.2f$ was created in the category %s",
+	result := fmt.Sprintf("Transaction for %.2f💲 was created in the category %s 💵",
 		float64(amount/100), category.Title)
 	log.Printf("[INFO] %s. ID: %s", result, transactionID)
 	_, err = c.Bot.Send(m.Sender, result)

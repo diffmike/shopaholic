@@ -21,7 +21,7 @@ func (c *InfoCommand) Execute(m *tb.Message) error {
 
 	balance := float64(user.Balance.Amount / 100)
 	time := user.CreatedAt.Format("02.01.2006 15:04")
-	result := fmt.Sprintf("%s. Balance is %.2f$. Registered at %s.", user.Name, balance, time)
+	result := fmt.Sprintf("%s 🤓 Balance is %.2f💲 Registion 🕰 %s", user.Name, balance, time)
 	_, err = c.Bot.Send(m.Sender, result)
 
 	return err

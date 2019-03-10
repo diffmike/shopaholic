@@ -31,13 +31,13 @@ func (c *HistoryCommand) Execute(m *tb.Message) error {
 		balanceWas := float64(transaction.BalanceWas.Amount / 100)
 		balanceNow := float64(transaction.BalanceNow.Amount / 100)
 		time := transaction.CreatedAt.Format("02.01.2006 15:04")
-		result := fmt.Sprintf("%s. %.2f$ at %s. Balance was %.2f$, now %.2f$",
+		result := fmt.Sprintf("🕰 %s. %.2f💲 at %s. Balance %.2f$ → %.2f$",
 			time, amount, transaction.Category.Title, balanceWas, balanceNow)
 		results = append(results, result)
 	}
 
 	if len(transactions) == 0 {
-		results = append(results, "There no transactions for you yet", user.Name)
+		results = append(results, "There no transactions for you yet🤷‍‍", user.Name)
 	}
 
 	_, err = c.Bot.Send(m.Sender, strings.Join(results, "\n"))

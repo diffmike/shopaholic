@@ -33,7 +33,7 @@ type Opts struct {
 	Dbg bool `long:"dbg" env:"DEBUG" description:"debug mode"`
 }
 
-var revision = "0.2.0"
+var revision = "0.3.0"
 
 func main() {
 	fmt.Printf("shopaholic %s\n", revision)
