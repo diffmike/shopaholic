@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/coreos/bbolt"
+	log "github.com/go-pkgz/lgr"
+	"github.com/jessevdk/go-flags"
 	"os"
 	"os/signal"
 	"runtime"
@@ -11,9 +13,6 @@ import (
 	"shopaholic/store/service"
 	"syscall"
 	"time"
-
-	log "github.com/go-pkgz/lgr"
-	"github.com/jessevdk/go-flags"
 )
 
 // Opts with all cli commands and flags
@@ -26,7 +25,9 @@ type Opts struct {
 	cmd.BotPollerCommand `command:"bot:start"`
 
 	Currency   string `long:"currency" env:"CURRENCY" default:"usd" description:"money currency"`
-	DBFilename string `long:"dbfilename" env:"DBFILENAME" default:"shopaholic.db" description:"database filename"`
+	DBFilename string `long:"db_filename" env:"DBFILENAME" default:"shopaholic.db" description:"database filename"`
+	RedisHost  string `long:"redis_host" env:"REDIS_HOST" default:"localhost:6379" description:"redis host"`
+	RedisDB    int    `long:"redis_db" env:"REDIS_DB" default:"0" description:"redis db num"`
 	BotToken   string `long:"bot_token" env:"BOT_TOKEN" description:"token of the bot"`
 
 	Dbg bool `long:"dbg" env:"DEBUG" description:"debug mode"`
@@ -46,7 +47,7 @@ func main() {
 		c := command.(cmd.Commander)
 		c.SetCommon(cmd.CommonOpts{
 			Currency: opts.Currency,
-			Store:    *initDataStore(opts.DBFilename),
+			Store:    *initRedisStore(opts.RedisHost, opts.RedisDB),
 			BotToken: opts.BotToken,
 		})
 		err := c.Execute(args)
@@ -65,10 +66,20 @@ func main() {
 	}
 }
 
-func initDataStore(dbFilename string) *service.DataStore {
+func initBoltStore(dbFilename string) *service.DataStore {
 	b, err := engine.NewBoltDB(bbolt.Options{Timeout: 30 * time.Second}, dbFilename)
 	if err != nil {
 		log.Printf("[ERROR] can not initiate DB %s", dbFilename)
+		os.Exit(0)
+	}
+
+	return &service.DataStore{Interface: b}
+}
+
+func initRedisStore(host string, db int) *service.DataStore {
+	b, err := engine.NewRedisClient(host, db)
+	if err != nil {
+		log.Printf("[ERROR] can not initiate redis at %s, %d", host, db)
 		os.Exit(0)
 	}
 

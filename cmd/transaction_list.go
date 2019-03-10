@@ -32,5 +32,9 @@ func (tlc *TransactionListCommand) Execute(args []string) error {
 			transaction.ID, balanceWas, balanceNow, time, amount, transaction.Category.Title)
 	}
 
+	if len(transactions) == 0 {
+		log.Print("There no transactions in the DataStore for the %s", user.Name)
+	}
+
 	return nil
 }

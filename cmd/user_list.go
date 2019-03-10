@@ -25,5 +25,9 @@ func (ulc *UserListCommand) Execute(args []string) error {
 		log.Printf("ID: %s. Name: %10s. Created: %s. Balance: %6.2f", user.ID, user.Name, created, balance)
 	}
 
+	if len(users) == 0 {
+		log.Print("There no users in the DataStore")
+	}
+
 	return nil
 }

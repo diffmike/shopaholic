@@ -19,9 +19,9 @@ const (
 	categoriesRedisTable   = "categories"
 )
 
-func NewRedisClient(db int) (*RedisDB, error) {
+func NewRedisClient(host string, db int) (*RedisDB, error) {
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     host,
 		Password: "", // no password set
 		DB:       db, // use default DB
 	})

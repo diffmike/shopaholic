@@ -36,6 +36,10 @@ func (c *HistoryCommand) Execute(m *tb.Message) error {
 		results = append(results, result)
 	}
 
+	if len(transactions) == 0 {
+		results = append(results, "There no transactions for you yet", user.Name)
+	}
+
 	_, err = c.Bot.Send(m.Sender, strings.Join(results, "\n"))
 	return err
 }
