@@ -10,4 +10,5 @@ type Category struct {
 	CreatedAt time.Time `json:"time" bson:"time"`
 	Type      Type      `json:"type"`
 	IsDefault bool      `json:"is_default"`
+	UserID    string    `json:"user_id"`
 }

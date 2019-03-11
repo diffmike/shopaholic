@@ -113,3 +113,15 @@ func (s *DataStore) Register(user store.User) (userID string, err error) {
 func (s *DataStore) UserList(number int) ([]store.User, error) {
 	return s.Interface.Users(number)
 }
+
+func (s *DataStore) DefineType(title string) (store.Type, string) {
+	firstChar := string(title[0])
+	if firstChar == "+" {
+		return store.Income, title[1:]
+	}
+	if firstChar == "-" {
+		return store.Expense, title[1:]
+	}
+
+	return store.Expense, title
+}

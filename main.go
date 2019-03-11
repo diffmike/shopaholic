@@ -7,7 +7,6 @@ import (
 	"github.com/jessevdk/go-flags"
 	"os"
 	"os/signal"
-	"runtime"
 	"shopaholic/cmd"
 	"shopaholic/store/engine"
 	"shopaholic/store/service"
@@ -21,6 +20,7 @@ type Opts struct {
 	cmd.UserListCommand          `command:"user:list"`
 	cmd.TransactionCreateCommand `command:"transaction:create"`
 	cmd.TransactionListCommand   `command:"transaction:list"`
+	cmd.CategoryCreateCommand    `command:"category:create"`
 
 	cmd.BotPollerCommand `command:"bot:start"`
 
@@ -43,11 +43,10 @@ func main() {
 
 	p.CommandHandler = func(command flags.Commander, args []string) error {
 		setupLog(opts.Dbg)
-		// commands implements CommonOptionsCommander to allow passing set of extra options defined for all commands
 		c := command.(cmd.Commander)
 		c.SetCommon(cmd.CommonOpts{
 			Currency: opts.Currency,
-			Store:    *initRedisStore(opts.RedisHost, opts.RedisDB),
+			Store:    initRedisStore(opts.RedisHost, opts.RedisDB),
 			BotToken: opts.BotToken,
 		})
 		err := c.Execute(args)
@@ -66,24 +65,24 @@ func main() {
 	}
 }
 
-func initBoltStore(dbFilename string) *service.DataStore {
+func initBoltStore(dbFilename string) service.DataStore {
 	b, err := engine.NewBoltDB(bbolt.Options{Timeout: 30 * time.Second}, dbFilename)
 	if err != nil {
 		log.Printf("[ERROR] can not initiate DB %s", dbFilename)
 		os.Exit(0)
 	}
 
-	return &service.DataStore{Interface: b}
+	return service.DataStore{Interface: b}
 }
 
-func initRedisStore(host string, db int) *service.DataStore {
+func initRedisStore(host string, db int) service.DataStore {
 	b, err := engine.NewRedisClient(host, db)
 	if err != nil {
 		log.Printf("[ERROR] can not initiate redis at %s, %d", host, db)
 		os.Exit(0)
 	}
 
-	return &service.DataStore{Interface: b}
+	return service.DataStore{Interface: b}
 }
 
 func setupLog(dbg bool) {
@@ -94,22 +93,11 @@ func setupLog(dbg bool) {
 	log.Setup(log.Msec, log.LevelBraces, log.CallerPkg, log.CallerIgnore("logger"))
 }
 
-// getDump reads runtime stack and returns as a string
-func getDump() string {
-	maxSize := 5 * 1024 * 1024
-	stacktrace := make([]byte, maxSize)
-	length := runtime.Stack(stacktrace, true)
-	if length > maxSize {
-		length = maxSize
-	}
-	return string(stacktrace[:length])
-}
-
 func init() {
 	sigChan := make(chan os.Signal)
 	go func() {
 		for range sigChan {
-			log.Printf("[INFO] SIGQUIT detected, dump:\n%s", getDump())
+			log.Printf("[INFO] SIGQUIT detected")
 		}
 	}()
 	signal.Notify(sigChan, syscall.SIGQUIT)

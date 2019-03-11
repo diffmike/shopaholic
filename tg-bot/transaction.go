@@ -27,7 +27,7 @@ func (c *TransactionCommand) Execute(m *tb.Message) error {
 		return err
 	}
 
-	category, err := c.Store.FindCategoryByTitle(cat)
+	category, err := c.Store.FindCategoryByTitleAndUserID(cat, user.ID)
 	if err != nil {
 		return err
 	}

@@ -17,6 +17,11 @@ func (r *RedisDB) StoreCategory(category store.Category) (categoryID string, err
 		return "", errors.Errorf("key %s already in store", category.ID)
 	}
 
+	existedCat, _ := r.FindCategoryByTitleAndUserID(category.Title, category.UserID)
+	if existedCat.ID != "" {
+		return "", errors.Errorf("cat with title %s already in store", category.Title)
+	}
+
 	category.CreatedAt = time.Now()
 
 	if e := r.save(categoriesRedisTable, category.ID, category); e != nil {
@@ -61,6 +66,25 @@ func (r *RedisDB) FindCategoryByTitle(title string) (category store.Category, er
 	for _, k := range keys {
 		err = r.load(categoriesRedisTable, k, &tmpCat)
 		if strings.ToLower(tmpCat.Title) == title {
+			category = tmpCat
+			break
+		}
+	}
+
+	return category, err
+}
+
+func (r *RedisDB) FindCategoryByTitleAndUserID(title string, userID string) (category store.Category, err error) {
+	keys, err := r.db.HKeys(categoriesRedisTable).Result()
+	if err != nil {
+		return category, err
+	}
+
+	title = strings.ToLower(title)
+	tmpCat := store.Category{}
+	for _, k := range keys {
+		err = r.load(categoriesRedisTable, k, &tmpCat)
+		if strings.ToLower(tmpCat.Title) == title && (tmpCat.UserID == userID || tmpCat.UserID == "") {
 			category = tmpCat
 			break
 		}

@@ -9,7 +9,7 @@ import (
 type TransactionCreateCommand struct {
 	Amount   float64 `short:"a" long:"amount" description:"amount of the transaction" required:"true"`
 	Category string  `short:"c" long:"category" description:"category of the transaction" required:"false"`
-	User     string  `short:"u" long:"user" description:"UID of the user" required:"true"`
+	User     string  `short:"u" long:"user" description:"ID of the user" required:"true"`
 
 	CommonOpts
 }
@@ -21,7 +21,7 @@ func (tcc *TransactionCreateCommand) Execute(args []string) error {
 		return err
 	}
 
-	category, err := tcc.Store.FindCategoryByTitle(tcc.Category)
+	category, err := tcc.Store.FindCategoryByTitleAndUserID(tcc.Category, user.ID)
 	if err != nil {
 		return err
 	}

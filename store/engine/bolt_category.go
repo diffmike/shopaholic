@@ -82,3 +82,24 @@ func (b *BoltDB) FindCategoryByTitle(title string) (category store.Category, err
 
 	return category, err
 }
+
+func (b *BoltDB) FindCategoryByTitleAndUserID(title string, userID string) (category store.Category, err error) {
+	err = b.db.View(func(tx *bolt.Tx) error {
+		title = strings.ToLower(title)
+		categoriesBkt := tx.Bucket([]byte(categoriesBucketName))
+
+		c := categoriesBkt.Cursor()
+		tmpCat := store.Category{}
+		for k, _ := c.First(); k != nil; k, _ = c.Next() {
+			_ = b.load(categoriesBkt, k, &tmpCat)
+			if strings.ToLower(tmpCat.Title) == title && (tmpCat.UserID == userID || tmpCat.UserID == "") {
+				category = tmpCat
+				break
+			}
+		}
+
+		return nil
+	})
+
+	return category, err
+}

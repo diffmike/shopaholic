@@ -5,3 +5,4 @@ shopaholic*
 !.elasticbeanstalk/*.global.yml
 .env
 .idea
+app
